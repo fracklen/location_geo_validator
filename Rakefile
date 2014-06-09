@@ -8,41 +8,33 @@ require 'geo_ruby'
 require 'pstore'
 require 'pry'
 require 'tco'
+require 'time'
 require 'require_all'
 require_all 'lib'
 
 namespace :validate do
 
-  task :test do
-    as = AdvertService.new
-    locations = as.locations("dk", "user_sale", "all")
-    puts locations.first
-  end
-
-  # desc "Postal coes"
-  # task :postal_codes do
-  #   as = AdvertService.new
-  #   locations = as.locations("dk", "lease", "all")
-  #   puts locations.length
-  # end
-
-  desc "Verifies that coordinates of locations are within their boundary their postal code"
+  desc "Verifies that coordinates of locations are within the boundary their assigned postal code"
   task :coordinates do
     advert_service = AdvertService.new
     postal_code_service = PostalCodeService.new
-    validate_coordinates(advert_service, postal_code_service, "user_sale")
-    validate_coordinates(advert_service, postal_code_service, "investment_sale")
-    validate_coordinates(advert_service, postal_code_service, "lease")
+    reports = { sub_reports: [], created_date: DateTime.now.to_s }
+    reports[:sub_reports] << validate_coordinates(advert_service, postal_code_service, "user_sale")
+    reports[:sub_reports] << validate_coordinates(advert_service, postal_code_service, "investment_sale")
+    reports[:sub_reports] << validate_coordinates(advert_service, postal_code_service, "lease")
+    puts JSON.dump reports
   end
 
-  def validate_coordinates(advert_service, postal_code_service, type)
+  def validate_coordinates(advert_service, postal_code_service, category)
+
+    report = { suspects: [], category: category }
     suspects = 0
     counter = 0
 
+    puts "\n       VALIDATING #{category}       ".bg("#2d3091").fg("#ffffff").bright
     print "Loading locations...".fg("#c0c0c0").bright
     locations = advert_service.locations("dk", type, "all")
     puts "#{locations.length} loaded".fg("green").bright
-    puts "\n       VALIDATING #{type}       ".bg("#2d3091").fg("#ffffff").bright
     locations.each do |location|
       begin
         # print "."
@@ -55,6 +47,8 @@ namespace :validate do
           puts "#{location['_links']['self']['href']}".fg("white").bright
           puts "#{location.latitude}, #{location.longitude}".fg("white").bright
           puts "Looks to be situated in: #{pd.nr} #{pd.navn}".fg("white").bright
+          location[:postal_district_by_coordinate] = pd
+          report[:suspects] << location
         end
       rescue Exception => e
         puts e
@@ -65,6 +59,9 @@ namespace :validate do
     end
     print "\n#{locations.length} verified".fg("#c0c0c0")
     puts " - #{suspects} suspects".fg("red")
+    report[:total_number_of_locations] = locations.length
+    report[:total_number_of_suspects] = suspects
+    report
   end
 
 end
