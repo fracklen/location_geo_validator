@@ -33,7 +33,7 @@ namespace :validate do
 
     puts "\n       VALIDATING #{category}       ".bg("#2d3091").fg("#ffffff").bright
     print "Loading locations...".fg("#c0c0c0").bright
-    locations = advert_service.locations("dk", type, "all")
+    locations = advert_service.locations("dk", category, "all")
     puts "#{locations.length} loaded".fg("green").bright
     locations.each do |location|
       begin
