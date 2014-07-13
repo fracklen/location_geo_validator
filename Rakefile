@@ -5,6 +5,7 @@ require 'net/http'
 require 'json'
 require 'map'
 require 'geo_ruby'
+require 'geo_ruby/geojson'
 require 'pstore'
 require 'pry'
 require 'tco'
@@ -13,6 +14,17 @@ require 'require_all'
 require_all 'lib'
 
 namespace :validate do
+
+  task :parse do
+    geo_json = PostalCodeService.new(false).postal_border_request("9800")
+    postal_area = GeoRuby::GeojsonParser.new.parse(geo_json)
+    coordinate = [10.1295, 57.0664]
+
+    # puts postal_area.inspect
+    location = GeoRuby::SimpleFeatures::Point.from_x_y(coordinate[0], coordinate[1])
+    puts postal_area[0].contains_point?(location)
+    # puts postal_area.
+  end
 
   desc "Verifies that coordinates of locations are within the boundary their assigned postal code"
   task :coordinates do
@@ -33,7 +45,7 @@ namespace :validate do
 
     puts "\n       VALIDATING #{category}       ".bg("#2d3091").fg("#ffffff").bright
     print "Loading locations...".fg("#c0c0c0").bright
-    locations = advert_service.locations("dk", type, "all")
+    locations = advert_service.locations("dk", category, "all")
     puts "#{locations.length} loaded".fg("green").bright
     locations.each do |location|
       begin

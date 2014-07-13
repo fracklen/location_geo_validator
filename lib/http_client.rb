@@ -6,6 +6,12 @@ class HttpClient
     JSON.load response(url, request).body
   end
 
+  def perform_pure_get(url, header_params = {})
+    request = Net::HTTP::Get.new(URI(url).request_uri)
+    add_header_params(request, header_params)
+    response(url, request).body
+  end
+
   private
 
     def add_header_params(request, header_params)

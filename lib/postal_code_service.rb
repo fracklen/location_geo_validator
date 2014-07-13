@@ -5,10 +5,14 @@ class PostalCodeService
 
   attr_reader :store, :postal_codes, :polygons
 
-  def initialize(store = PStore.new("postal_borders.pstore"))
+  def initialize(preload = true, store = PStore.new("postal_borders.pstore"))
     @store = store
-    init_postal_codes
-    init_polygons
+    init_postal_codes if preload
+    init_polygons if preload
+  end
+
+  def postal_border_request(postal_code)
+    perform_pure_get(postal_borders_url(postal_code))
   end
 
   def find_postal_code_by_coordinate(coordinates)
@@ -82,6 +86,10 @@ class PostalCodeService
 
     def perform_get(url)
       HttpClient.new.perform_get(url)
+    end
+
+    def perform_pure_get(url)
+      HttpClient.new.perform_pure_get(url)
     end
 
     def postal_codes_url
