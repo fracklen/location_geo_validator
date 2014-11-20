@@ -41,6 +41,7 @@ namespace :validate do
       begin
         # print "."
         unless postal_code_service.contains?(location.postal_code.strip, [location.longitude, location.latitude])
+          distance = postal_code_service.distance(location.postal_code.strip, [location.longitude, location.latitude])
           pc = postal_code_service.find_postal_code_by_coordinate([location.latitude, location.longitude])
           pd = postal_code_service.postal_district(pc)
           suspects += 1
@@ -50,6 +51,7 @@ namespace :validate do
           puts "#{location.latitude}, #{location.longitude}".fg("white").bright
           puts "Looks to be situated in: #{pd.nr} #{pd.navn}".fg("white").bright
           location[:postal_district_by_coordinate] = pd
+          location[:distance] = distance
           report[:suspects] << location
         end
       rescue Exception => e

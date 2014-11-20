@@ -32,6 +32,17 @@ class PostalCodeService
     res
   end
 
+  def distance(postal_code, coordinate)
+    0 if contains?(postal_code, coordinate)
+    borders(postal_code).map do |polygon_coord|
+      postal_area = GeoRuby::SimpleFeatures::Polygon.from_coordinates(polygon_coord,256)
+      location = GeoRuby::SimpleFeatures::Point.from_x_y(coordinate[0], coordinate[1])
+      first = postal_area.bounding_box[0].spherical_distance(location)/1000
+      second = postal_area.bounding_box[1].spherical_distance(location)/1000
+      [first, second].min
+    end.min
+  end
+
   def contains?(postal_code, coordinate)
     borders(postal_code).any? do |polygon_coord|
       postal_area = GeoRuby::SimpleFeatures::Polygon.from_coordinates(polygon_coord,256)
