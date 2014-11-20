@@ -45,6 +45,14 @@
                     if(num > 50) { return 'danger' }
                     else if(num > 10) { return 'warning' }
                     else{ return 'default' }
+                  },
+                  link: function ( url ) {
+                    if(url.indexOf("www")>-1){
+                      return url;
+                    }
+                    else{
+                      return "http://www.lokalebasen.dk"+url;
+                    }
                   }
                 }
               });
@@ -115,7 +123,7 @@
                     <td><span class="label label-danger">{{postal_code}}</span></td>
                     <td><span class="label label-success">{{postal_district_by_coordinate.nr}}</span></td>
                     <td>{{format(distance)}}</td>
-                    <td><a class="btn btn-primary" href='{{_links.self.href}}' target="_blank">Show</td>
+                    <td><a class="btn btn-primary" href='{{link(_links.self.href)}}' target="_blank">Show</td>
                   </tr>
                 {{/each}}
               {{/each}}
