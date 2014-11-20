@@ -27,8 +27,13 @@ namespace :validate do
     HttpClient.new.perform_post(post_url, JSON.dump(reports) )
   end
 
-  def validate_coordinates(advert_service, postal_code_service, category)
+  desc "This task must be run once, before starting other sync task"
+  task :set_postal_cache do
+    postal_code_service = PostalCodeService.new
+    postal_code_service.update_postal_codes_in_store
+  end
 
+  def validate_coordinates(advert_service, postal_code_service, category)
     report = { suspects: [], category: category }
     suspects = 0
     counter = 0
