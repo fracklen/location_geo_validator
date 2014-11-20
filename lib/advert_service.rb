@@ -10,7 +10,7 @@ class AdvertService
   private
 
     def url(category, kind)
-      "http://advert-service.lokalebasen.dk/adverts/#{category}/#{kind}"
+      "http://advert-service.services.lokalebasen.dk/adverts/#{category}/#{kind}"
     end
 
     def response(url, req)

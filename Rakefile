@@ -16,13 +16,15 @@ namespace :validate do
 
   desc "Verifies that coordinates of locations are within the boundary their assigned postal code"
   task :coordinates do
+    post_url = "http://sofa-staging.lokalebasen.dk:5984/location_validation"
     advert_service = AdvertService.new
     postal_code_service = PostalCodeService.new
     reports = { sub_reports: [], created_date: DateTime.now.to_s }
     reports[:sub_reports] << validate_coordinates(advert_service, postal_code_service, "user_sale")
     reports[:sub_reports] << validate_coordinates(advert_service, postal_code_service, "investment_sale")
     reports[:sub_reports] << validate_coordinates(advert_service, postal_code_service, "lease")
-    puts JSON.dump reports
+    puts "Posting report"
+    HttpClient.new.perform_post(post_url, JSON.dump(reports) )
   end
 
   def validate_coordinates(advert_service, postal_code_service, category)
@@ -39,6 +41,7 @@ namespace :validate do
       begin
         # print "."
         unless postal_code_service.contains?(location.postal_code.strip, [location.longitude, location.latitude])
+          distance = postal_code_service.distance(location.postal_code.strip, [location.longitude, location.latitude])
           pc = postal_code_service.find_postal_code_by_coordinate([location.latitude, location.longitude])
           pd = postal_code_service.postal_district(pc)
           suspects += 1
@@ -48,6 +51,7 @@ namespace :validate do
           puts "#{location.latitude}, #{location.longitude}".fg("white").bright
           puts "Looks to be situated in: #{pd.nr} #{pd.navn}".fg("white").bright
           location[:postal_district_by_coordinate] = pd
+          location[:distance] = distance
           report[:suspects] << location
         end
       rescue Exception => e
