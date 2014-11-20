@@ -1,0 +1,133 @@
+<html>
+  <head>
+    <title>Validation reports</title>
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src='http://cdn.ractivejs.org/latest/ractive.js'></script>
+    <script type="text/javascript">
+        var DATABASE = "http://sofa-staging.lokalebasen.dk:5984/location_validation"
+        var ractive = null;
+
+        function getReport(id){
+          $.ajax({
+            url: DATABASE + "/"+id,
+            success: function (data){
+              showReport(JSON.parse(data));
+            }
+          });
+        }
+
+        function showReport(report) {
+          ractive.set( 'report', report );
+        }
+
+        function getReports() {
+          $.ajax({
+            url: DATABASE + "/_design/list/_view/created_date",
+            success: function (data){
+              var view = JSON.parse(data);
+              var reports = [];
+              $(view.rows).each( function (index, item) {
+                reports.push (item);
+              });
+
+              ractive = new Ractive({
+                el: 'container',
+                template:  '#template',
+                data: {
+                  reports: reports,
+                  format: function ( num ) {
+                    return num.toFixed( 2 );
+                  },
+                  dist_col: function ( num ) {
+                    if(num > 50) { return 'danger' }
+                    else if(num > 10) { return 'warning' }
+                    else{ return 'default' }
+                  }
+                }
+              });
+              ractive.on( 'show', function ( event ) {
+               getReport(event.context.id);
+              });
+            }
+           });
+        }
+     </script
+  </head>
+  <body onload="getReports();">
+    <div class="container-fluid">
+      <script id='template' type='text/ractive'>
+        <table class='table'>
+          <thead>
+            <tr>
+              <td>Id</td>
+              <td>Created date</td>
+            </tr>
+          </thead>
+          <tbody>
+          {{#each reports}}
+            <tr>
+              <td>{{id}}</td>
+              <td>{{key[1]}}</td>
+              <td><button class="btn btn-primary" on-click='show'>Show!</button></td>
+            </tr>
+          {{/each}}
+          </tbody>
+        </table>
+
+        <div class="panel panel-default">
+          <div class="panel-heading">Report</div>
+          <div class="panel-body">
+            <p>{{report.created_date}}</p>
+          </div>
+
+          <table class='table'>
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Address</th>
+                <th>Current postal_code</th>
+                <th>Situated in</th>
+                <th>Distance</th>
+                <th>Show</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each report.sub_reports}}
+                <tr class="active">
+                  <td>
+                    <strong>Category: {{category}}</strong>
+                  </td>
+                  <td>
+                    <span class="badge">{{total_number_of_suspects}}/{{total_number_of_locations}}</span>
+                  </td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                {{#each suspects}}
+                  <tr class="{{dist_col(distance)}}">
+                    <td>{{id}}</td>
+                    <td>{{address_line_1}}, {{postal_code}} {{postal_name}}</td>
+                    <td><span class="label label-danger">{{postal_code}}</span></td>
+                    <td><span class="label label-success">{{postal_district_by_coordinate.nr}}</span></td>
+                    <td>{{format(distance)}}</td>
+                    <td><a class="btn btn-primary" href='{{_links.self.href}}' target="_blank">Show</td>
+                  </tr>
+                {{/each}}
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </script>
+
+      <h2>Validation reports</h2>
+
+      <div id='container'></div>
+    </div>
+
+  </body>
+</html>
