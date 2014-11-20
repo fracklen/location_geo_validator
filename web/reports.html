@@ -67,29 +67,30 @@
   <body onload="getReports();">
     <div class="container-fluid">
       <script id='template' type='text/ractive'>
-        <table class='table'>
-          <thead>
-            <tr>
-              <td>Id</td>
-              <td>Created date</td>
-            </tr>
-          </thead>
-          <tbody>
-          {{#each reports}}
-            <tr>
-              <td>{{id}}</td>
-              <td>{{key[1]}}</td>
-              <td><button class="btn btn-primary" on-click='show'>Show!</button></td>
-            </tr>
-          {{/each}}
-          </tbody>
-        </table>
+        <div class="panel panel-primary">
+        <div class="panel-heading">Reports</div>
+            <table class='table table-bordered'>
+              <thead>
+                <tr>
+                  <td>Id</td>
+                  <td>Created date</td>
+                  <td>Show</td>
+                </tr>
+              </thead>
+              <tbody>
+              {{#each reports}}
+                <tr>
+                  <td>{{id}}</td>
+                  <td>{{key[1]}}</td>
+                  <td><button class="btn btn-primary btn-sm" on-click='show'>Show</button></td>
+                </tr>
+              {{/each}}
+              </tbody>
+            </table>
+        </div>
 
-        <div class="panel panel-default">
-          <div class="panel-heading">Report</div>
-          <div class="panel-body">
-            <p>{{report.created_date}}</p>
-          </div>
+        <div class="panel panel-primary">
+          <div class="panel-heading">Report <span class="pull-right badge"> {{report.created_date}}</span></div>
 
           <table class='table'>
             <thead>
@@ -121,9 +122,9 @@
                     <td>{{id}}</td>
                     <td>{{address_line_1}}, {{postal_code}} {{postal_name}}</td>
                     <td><span class="label label-danger">{{postal_code}}</span></td>
-                    <td><span class="label label-success">{{postal_district_by_coordinate.nr}}</span></td>
+                    <td><span class="label label-success">{{postal_district_by_coordinate.nr}}</span> <small>{{postal_district_by_coordinate.navn}}</small></td>
                     <td>{{format(distance)}}</td>
-                    <td><a class="btn btn-primary" href='{{link(_links.self.href)}}' target="_blank">Show</td>
+                    <td><a class="btn btn-primary btn-sm" href='{{link(_links.self.href)}}' target="_blank">Show</td>
                   </tr>
                 {{/each}}
               {{/each}}
@@ -133,6 +134,7 @@
       </script>
 
       <h2>Validation reports</h2>
+      <p>Reports contain a list of locations where the coordinates do not cohere with the current postal code</p>
 
       <div id='container'></div>
     </div>
