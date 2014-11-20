@@ -16,13 +16,15 @@ namespace :validate do
 
   desc "Verifies that coordinates of locations are within the boundary their assigned postal code"
   task :coordinates do
+    post_url = "http://sofa-staging.lokalebasen.dk:5984/location_validation"
     advert_service = AdvertService.new
     postal_code_service = PostalCodeService.new
     reports = { sub_reports: [], created_date: DateTime.now.to_s }
     reports[:sub_reports] << validate_coordinates(advert_service, postal_code_service, "user_sale")
     reports[:sub_reports] << validate_coordinates(advert_service, postal_code_service, "investment_sale")
     reports[:sub_reports] << validate_coordinates(advert_service, postal_code_service, "lease")
-    puts JSON.dump reports
+    puts "Posting report"
+    HttpClient.new.perform_post(post_url, JSON.dump(reports) )
   end
 
   def validate_coordinates(advert_service, postal_code_service, category)
