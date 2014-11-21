@@ -38,6 +38,9 @@
                 template:  '#template',
                 data: {
                   reports: reports,
+                  date_format: function(str_date){
+                    return new Date(Date.parse(str_date)).toLocaleString()
+                  },
                   format: function ( num ) {
                     return num.toFixed( 2 );
                   },
@@ -81,7 +84,7 @@
               {{#each reports}}
                 <tr>
                   <td>{{id}}</td>
-                  <td>{{key[1]}}</td>
+                  <td>{{date_format(key[1])}}</td>
                   <td><button class="btn btn-primary btn-sm" on-click='show'>Show</button></td>
                 </tr>
               {{/each}}
@@ -90,7 +93,7 @@
         </div>
 
         <div class="panel panel-primary">
-          <div class="panel-heading">Report <span class="pull-right badge"> {{report.created_date}}</span></div>
+          <div class="panel-heading">Report <span class="pull-right badge"> {{date_format(report.created_date)}}</span></div>
 
           <table class='table'>
             <thead>
