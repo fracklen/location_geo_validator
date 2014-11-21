@@ -7,7 +7,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <script src='http://cdn.ractivejs.org/latest/ractive.js'></script>
     <script type="text/javascript">
-        var DATABASE = "http://sofa-staging.lokalebasen.dk:5984/location_validation"
+        var DATABASE = window.location.origin+"/location_validation"
         var ractive = null;
 
         function getReport(id){
