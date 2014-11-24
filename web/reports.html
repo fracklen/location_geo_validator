@@ -19,6 +19,19 @@
           });
         }
 
+        function deleteReport(id, rev){
+          console.log(DATABASE+id);
+          console.log(rev);
+          doc_url = DATABASE+"/"+id+"?rev="+rev;
+          $.ajax({
+              url: doc_url,
+              type: 'DELETE',
+              success: function(result) {
+                getReports()
+              }
+          });
+        }
+
         function showReport(report) {
           ractive.set( 'report', report );
         }
@@ -62,6 +75,9 @@
               ractive.on( 'show', function ( event ) {
                getReport(event.context.id);
               });
+              ractive.on( 'delete', function ( event ) {
+                deleteReport(event.context.id, event.context.key[1]);
+              });
             }
            });
         }
@@ -78,14 +94,16 @@
                   <td>Id</td>
                   <td>Created date</td>
                   <td>Show</td>
+                  <td>Delete</td>
                 </tr>
               </thead>
               <tbody>
               {{#each reports}}
                 <tr>
                   <td>{{id}}</td>
-                  <td>{{date_format(key[1])}}</td>
+                  <td>{{date_format(key[2])}}</td>
                   <td><button class="btn btn-primary btn-sm" on-click='show'>Show</button></td>
+                  <td><button on-click='delete' class="btn btn-danger btn-sm">Delete</td>
                 </tr>
               {{/each}}
               </tbody>
