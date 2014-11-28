@@ -27,7 +27,7 @@ namespace :validate do
     HttpClient.new.perform_post(post_url, JSON.dump(reports) )
   end
 
-  desc "This task must be run once, before starting other sync task"
+  desc "This task must be run once, before starting other sync tasks"
   task :set_postal_cache do
     postal_code_service = PostalCodeService.new
     postal_code_service.update_postal_codes_in_store
@@ -44,7 +44,6 @@ namespace :validate do
     puts "#{locations.length} loaded".fg("green").bright
     locations.each do |location|
       begin
-        # print "."
         unless postal_code_service.contains?(location.postal_code.strip, [location.longitude, location.latitude])
           distance = postal_code_service.distance(location.postal_code.strip, [location.longitude, location.latitude])
           pc = postal_code_service.find_postal_code_by_coordinate([location.latitude, location.longitude])
@@ -57,6 +56,7 @@ namespace :validate do
           puts "Looks to be situated in: #{pd.nr} #{pd.navn}".fg("white").bright
           location[:postal_district_by_coordinate] = pd
           location[:distance] = distance
+          location[:company_name] = company_name(location.uuid)
           report[:suspects] << location
         end
       rescue Exception => e
@@ -73,4 +73,18 @@ namespace :validate do
     report
   end
 
+  def company_name(location_uuid)
+    url = "http://sofa-staging.lokalebasen.dk:5984/dk_active_locations/#{location_uuid}"
+    location = get_doc(url)
+    location["provider_name"]
+  end
+
+  def get_doc(url)
+    uri = URI(url)
+    req = Net::HTTP::Get.new(uri.request_uri)
+    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+      http.request(req)
+    end
+    JSON.parse(res.body)
+  end
 end

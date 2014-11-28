@@ -117,6 +117,7 @@
             <thead>
               <tr>
                 <th>Id</th>
+                <th>Provider</th>
                 <th>Address</th>
                 <th>Current postal_code</th>
                 <th>Situated in</th>
@@ -141,6 +142,7 @@
                 {{#each suspects}}
                   <tr class="{{dist_col(distance)}}">
                     <td>{{id}}</td>
+                    <td>{{company_name}}</td>
                     <td>{{address_line_1}}, {{postal_code}} {{postal_name}}</td>
                     <td><span class="label label-danger">{{postal_code}}</span></td>
                     <td><span class="label label-success">{{postal_district_by_coordinate.nr}}</span> <small>{{postal_district_by_coordinate.navn}}</small></td>
