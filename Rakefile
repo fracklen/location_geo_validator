@@ -16,7 +16,7 @@ namespace :validate do
 
   desc "Verifies that coordinates of locations are within the boundary their assigned postal code"
   task :coordinates do
-    post_url = "http://sofa-staging.lokalebasen.dk:5984/location_validation"
+    post_url = "#{couch_url}/location_validation"
     advert_service = AdvertService.new
     postal_code_service = PostalCodeService.new
     reports = { sub_reports: [], created_date: DateTime.now.to_s }
@@ -24,7 +24,7 @@ namespace :validate do
     reports[:sub_reports] << validate_coordinates(advert_service, postal_code_service, "investment_sale")
     reports[:sub_reports] << validate_coordinates(advert_service, postal_code_service, "lease")
     puts "Posting report"
-    HttpClient.new.perform_post(post_url, JSON.dump(reports) )
+    puts HttpClient.new.perform_post(post_url, JSON.dump(reports) )
   end
 
   desc "This task must be run once, before starting other sync tasks"
@@ -63,7 +63,7 @@ namespace :validate do
         puts e
         puts "#{location.address_line_1}, #{location.postal_code} #{location.postal_name}".fg("#ff0000").bright
         puts "#{location.latitude}, #{location.longitude}".fg("#ff0000").bright
-        raise
+        # Call Sentry
       end
     end
     print "\n#{locations.length} verified".fg("#c0c0c0")
@@ -74,9 +74,16 @@ namespace :validate do
   end
 
   def company_name(location_uuid)
-    url = "http://sofa-staging.lokalebasen.dk:5984/dk_active_locations/#{location_uuid}"
-    location = get_doc(url)
-    location["provider_name"]
+    url = "#{couch_url}/lease_locations/#{location_uuid}"
+    location = HttpClient.new.perform_get(url)
+    provider = providers.find{|provider| provider["uuid"]==location["provider_uuid"]}
+    provider["company_name"]
+  rescue
+    "N/A"
+  end
+
+  def couch_url
+    "https://couch.lokalebasen.dk"
   end
 
   def get_doc(url)
@@ -87,4 +94,14 @@ namespace :validate do
     end
     JSON.parse(res.body)
   end
+
+  def providers
+    header = {
+      "Api-Key"=>ENV["API_KEY"],
+      "Content-Type"=>"application/json"
+    }
+    provider_url="http://www.lokalebasen.dk/api/internal/providers.json"
+    @providers ||= HttpClient.new.perform_get(provider_url, header)["providers"]
+  end
+
 end
