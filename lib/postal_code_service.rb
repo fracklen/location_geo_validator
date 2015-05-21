@@ -3,10 +3,9 @@ require 'tco'
 
 class PostalCodeService
 
-  attr_reader :store, :postal_codes, :polygons
+  attr_reader :postal_codes, :polygons
 
-  def initialize(store = PStore.new("postal_borders.pstore"))
-    @store = store
+  def initialize()
     init_postal_codes
     init_polygons
   end
@@ -103,4 +102,15 @@ class PostalCodeService
       "http://geo.oiorest.dk/postnumre/#{postal_code}/gr%C3%A6nse.json"
     end
 
+    def store
+      @store ||= PStore.new(store_path)
+    end
+
+    def store_path
+      if File.exist?('postal_borders.pstore')
+        'postal_borders.pstore'
+      else
+        '/var/log/location_geo_validator/postal_borders.pstore'
+      end
+    end
 end
