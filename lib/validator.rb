@@ -19,10 +19,10 @@ class Validator
     pd = postal_district(pc)
 
     begin
-      puts "\n******** SUSPECT **********".fg("yellow")
-      puts "#{location.address_line1}, #{location.postal_code} #{location.postal_name}".fg("white").bright
-      puts "#{location.latitude}, #{location.longitude}".fg("white").bright
-      puts "Looks to be situated in: #{pd.nr} #{pd.navn}".fg("white").bright
+      puts "\n******** SUSPECT **********"
+      puts "#{location.address_line1}, #{location.postal_code} #{location.postal_name}"
+      puts "#{location.latitude}, #{location.longitude}"
+      puts "Looks to be situated in: #{pd.nr} #{pd.navn}"
     rescue
       :noop
     end
