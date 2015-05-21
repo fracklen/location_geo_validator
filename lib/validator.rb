@@ -20,7 +20,7 @@ class Validator
 
     begin
       puts "\n******** SUSPECT **********".fg("yellow")
-      puts "#{location.address_line_1}, #{location.postal_code} #{location.postal_name}".fg("white").bright
+      puts "#{location.address_line1}, #{location.postal_code} #{location.postal_name}".fg("white").bright
       puts "#{location.latitude}, #{location.longitude}".fg("white").bright
       puts "Looks to be situated in: #{pd.nr} #{pd.navn}".fg("white").bright
     rescue
@@ -31,7 +31,7 @@ class Validator
       location_id: location.id,
       location_uuid: location.uuid,
       position_postal_code: pc,
-      position_postal_district: postal_district_info(pd)
+      position_postal_district: postal_district_info(pd),
       distance: distance(location),
     }
   end

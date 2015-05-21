@@ -9,5 +9,5 @@ gem 'georuby'
 gem 'require_all'
 gem 'pry'
 gem 'tco'
-gem 'raven'
+gem 'sentry-raven'
 

@@ -4,6 +4,6 @@ class Location
   end
 
   def method_missing(method_name, *args)
-    @attributes[method_name]
+    @attributes[method_name.to_s]
   end
 end
