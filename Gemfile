@@ -7,7 +7,5 @@ gem 'rake'
 gem 'map'
 gem 'georuby'
 gem 'require_all'
-gem 'pry'
-gem 'tco'
 gem 'sentry-raven'
 

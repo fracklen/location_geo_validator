@@ -1,5 +1,4 @@
 require_relative './http_client'
-require 'tco'
 
 class PostalCodeService
 
@@ -67,13 +66,13 @@ class PostalCodeService
     end
 
     def init_postal_codes
-      print "Init postalcodes...".fg("#c0c0c0").bright
+      print "Init postalcodes..."
       @postal_codes = perform_get(postal_codes_url).map{ |pc| Map.new(pc) }
-      puts "finished".fg("green").bright
+      puts "finished"
     end
 
     def init_polygons
-      print "Init polygons...".fg("#c0c0c0").bright
+      print "Init polygons..."
       @polygons = {}
       store.transaction(true) do |s|
         postal_codes = s.roots
@@ -81,7 +80,7 @@ class PostalCodeService
           @polygons[postal_code] = s[postal_code]
         end
       end
-      puts "finished".fg("green").bright
+      puts "finished"
     end
 
     def update_cache(postal_code)
